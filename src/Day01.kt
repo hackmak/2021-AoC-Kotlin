@@ -4,8 +4,8 @@ fun main() {
         var prev: Int? = null
         var counter = 0
         for (measurement in input) {
-            val current = measurement.toIntOrNull() // assert not null
-            if (prev != null && current != null && prev < current) {
+            val current = measurement.toInt()
+            if (prev != null && prev < current) {
                 counter += 1
             }
             prev = current
