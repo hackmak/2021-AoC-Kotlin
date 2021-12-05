@@ -1,16 +1,8 @@
 fun main() {
     // part 1
     fun countDepthIncreases(input: List<String>): Int {
-        var prev: Int? = null
-        var counter = 0
-        for (measurement in input) {
-            val current = measurement.toInt()
-            if (prev != null && prev < current) {
-                counter += 1
-            }
-            prev = current
-        }
-        return counter
+        val currentVals = input.subList(1, input.size)
+        return currentVals.filterIndexed { i, _ -> input[i].toInt() < currentVals[i].toInt() }.size
     }
 
     // test if implementation meets criteria from the description
