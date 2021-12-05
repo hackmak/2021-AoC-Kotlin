@@ -2,7 +2,9 @@ fun main() {
     // part 1
     fun countDepthIncreases(input: List<String>): Int {
         return input.filterIndexed { i, _ ->
-            i != 0 && (input[i].toInt() > input[i - 1].toInt())
+            if (i != 0)
+                input[i].toInt() > input[i - 1].toInt()
+            else false
         }.size
     }
 
@@ -16,25 +18,13 @@ fun main() {
 
     // part 2
     fun countSumIncreases(input: List<String>): Int {
-        var prevSum: Int? = null
-        var counter = 0
-
-        // traverse list once
-        for (i in input.indices) {
-            // only calculate sums until the last group of 3
-            if (i <= input.size - 3) {
-                val currentSum = input[i].toInt() + input[i+1].toInt() + input[i+2].toInt()
-                if (prevSum != null && prevSum < currentSum) {
-                    counter += 1
-                }
-                prevSum = currentSum
-            } else {
-                break
-            }
-        }
-        return counter
+        return input.filterIndexed { i, _ ->
+            if (i != 0 && i + 2 < input.size)
+                // start with second group of 3
+                input[i].toInt() + input[i + 1].toInt() + input[i + 2].toInt() > input[i - 1].toInt() + input[i].toInt() + input[i + 1].toInt()
+            else false
+        }.size
     }
-
     // test if implementation meets criteria from the description
     check(countSumIncreases(testInput) == 5)
 
