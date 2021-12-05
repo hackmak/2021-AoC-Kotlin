@@ -1,8 +1,9 @@
 fun main() {
     // part 1
     fun countDepthIncreases(input: List<String>): Int {
-        val currentVals = input.subList(1, input.size)
-        return currentVals.filterIndexed { i, _ -> input[i].toInt() < currentVals[i].toInt() }.size
+        return input.filterIndexed { i, _ ->
+            i != 0 && (input[i].toInt() > input[i - 1].toInt())
+        }.size
     }
 
     // test if implementation meets criteria from the description
