@@ -46,13 +46,6 @@ fun main() {
         }
 
         val boardListAll = allBoards.toList() // fixme will need to set allBoards functionally
-//        val test = numberDraws.mapIndexed { i, number ->
-//            println(number)
-//            boardListAll.fold(boardListAll) { boardList, board ->
-//                return@fold markBingoBoards(number, boardList)
-//            }
-//
-//        }
 
         // go through each number drawn and mark each bingo board if they have the value
         val test1 = numberDraws.fold(boardListAll) { boardList, number ->
@@ -63,20 +56,6 @@ fun main() {
                 }
         }
         println(test1)
-//        for (i in numberDraws.indices) {
-//            allBoards.map { board ->
-//                board.fold(board) { _, _ ->
-//                    markBingoBoard(numberDraws[i], board)
-//                }
-//            }
-
-            //allBoards.fold(allBoards.map { board -> board.fold(board) {markBingoBoard(numberDraws[i], board) } })
-
-
-//            if (i >= 4) {
-//                // check if each board wins after 5+ moves
-//
-//            }
 
         return 0
     }
