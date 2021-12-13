@@ -12,13 +12,6 @@ fun main() {
         }
     }
 
-    fun markBingoBoards(bingoNumber: Int, allBoards: List<List<List<BingoObject>>>): List<List<List<BingoObject>>> {
-        return allBoards.map { board ->
-            markBingoBoard(bingoNumber, board)
-        }
-    }
-
-
     fun calculateScore(winningBoard: List<List<BingoObject>>, lastNumberCalled: Int): Int {
         return winningBoard.flatten().filter {  bingoObject ->
             // collect all unmarked numbers
@@ -33,11 +26,12 @@ fun main() {
         // check first column for horizontal wins
         for (row in currentBoard) {
             for (i in row.indices) {
-                if ((i == 0 || i == row.lastIndex) && row[i].isMarked) {
+                if (row[i].isMarked) {
                     // continue
-                } else if (i == row.lastIndex && row[i].isMarked) {
-                    // calculate score
-                    return true
+                    if (i == row.lastIndex) {
+                        // calculate score
+                        return true
+                    }
                 } else {
                     // if any are not marked, break
                     break
@@ -68,10 +62,7 @@ fun main() {
         return false
     }
 
-    fun getWinningBoard(allBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
-        val markedBoards = allBoards.map { board ->
-            markBingoBoard(draw, board)
-        }
+    fun checkPotentialWinningBoard(markedBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
         val winners = markedBoards.filter { markedBoard ->
             isWinningBoard(markedBoard)
         }
@@ -79,6 +70,18 @@ fun main() {
             Pair(calculateScore(winners.first(), draw), winners)
         else
             Pair(0, markedBoards)
+    }
+
+    fun getWinningBoard(numberDraws: List<Int>, allBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
+        // go through each number drawn and mark each bingo board if they have the value
+        val markedBoards = allBoards.map { board ->
+            markBingoBoard(draw, board)
+        }
+        // check if each board wins after 5+ moves
+        return if (numberDraws.indexOf(draw) < 5)
+            Pair(0, markedBoards)
+        else
+            checkPotentialWinningBoard(markedBoards, draw)
     }
 
     fun calculateBingoScore(input: List<String>): Int {
@@ -106,42 +109,14 @@ fun main() {
 
         val boardListAll = allBoards.toList() // fixme will need to set allBoards functionally
 
-        // go through each number drawn and mark each bingo board if they have the value
-        val test0 = numberDraws.fold(Pair(0, boardListAll)) { pair, draw ->
+        return numberDraws.fold(Pair(0, boardListAll)) { pair, draw ->
             val (winningScore, boards) = pair
             if (winningScore > 0)
                 return@fold pair
             else
-                // check if each board wins todo after 5+ moves
-                return@fold getWinningBoard(boards, draw)
-        }
-        val test1 = numberDraws.fold(boardListAll) { boardList, number ->
-            boardList.map { board ->
-                markBingoBoard(number, board)
-            }
-        }
-        val allMarkedBoards = numberDraws.map { number ->
-            boardListAll.fold(boardListAll) { boardList, board ->
-               return@fold markBingoBoards(number, boardListAll)
-            }
-        }
-
-        val test2 = numberDraws.mapIndexed { i, number ->
-            println(number)
-            boardListAll.fold(boardListAll) { boardList, board ->
-                return@fold markBingoBoards(number, boardList)
-            }
-        }
-
-        // TODO recursion??
-        // check each board to see if it's a win
-        // FIXME this is inefficient, find a better way?? calculating the win twice.
-//        return calculateScore(allMarkedBoards.first { board -> isWinningBoard(board) },
-//            allMarkedBoards.indexOfFirst { board ->
-//                // check if each board wins todo after 5+ moves
-//                isWinningBoard(board)
-//        })
-        return 0
+                // check if each board wins after 5+ moves
+                return@fold getWinningBoard(numberDraws, boards, draw)
+        }.first
     }
 
     // test if implementation meets criteria from the description
