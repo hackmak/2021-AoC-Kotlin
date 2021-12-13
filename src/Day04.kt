@@ -22,14 +22,11 @@ fun main() {
     }
 
     fun isWinningBoard (currentBoard: List<List<BingoObject>>): Boolean {
-        // todo make this functional
-        // check first column for horizontal wins
+        // check for horizontal wins
         for (row in currentBoard) {
             for (i in row.indices) {
                 if (row[i].isMarked) {
-                    // continue
                     if (i == row.lastIndex) {
-                        // calculate score
                         return true
                     }
                 } else {
@@ -39,15 +36,13 @@ fun main() {
             }
         }
 
-        // only need to check first row for vertical wins
+        // check first row for vertical wins
         val firstRow = currentBoard[0]
         for (i in firstRow.indices) {
             for (j in 1 until currentBoard.size) { // skip first row
                 if (firstRow[i].isMarked) {
-                    // continue
                     if (currentBoard[j][i].isMarked) {
                         if (j == currentBoard.size - 1) {
-                            // vertical win
                             return true
                         }
                     } else {
@@ -84,42 +79,50 @@ fun main() {
             checkPotentialWinningBoard(markedBoards, draw)
     }
 
+    fun inputToBingoBoards(filteredInput: List<String>, allBoards: List<List<List<BingoObject>>>): List<List<List<BingoObject>>> {
+        return if (filteredInput.size < 5) {
+            allBoards
+        } else {
+            inputToBingoBoards(filteredInput.drop(5), allBoards.plusElement(filteredInput.take(5).map { line ->
+                // split by whitespace
+                line.split("\\s+".toRegex()).map { bingoNumber ->
+                    BingoObject(bingoNumber.toInt(), false)
+                }
+            }))
+        }
+    }
+
     fun calculateBingoScore(input: List<String>): Int {
         // number of draws is first line of input
         val numberDraws = input[0].split(",").map { draw -> draw.toInt() }
 
         // filter input to get rid of starting whitespace, number draws, and new lines
-        var filteredInput = input.map { line -> line.trim() }
+        val filteredInput = input.map { line -> line.trim() }
             .filterIndexed { i, line ->
                 i != 0 && line != "" // ignore first line which is number draws and any new lines
             }
 
-        val allBoards = ArrayList<List<List<BingoObject>>>()
         // get all bingo tables and add to a list
-        while(filteredInput.size >= 5) {
-            // get first 5 elements
-            allBoards.add(filteredInput.take(5).map {
-                line -> line.split("\\s+".toRegex()).map { // split by whitespace
-                    bingoNumber -> BingoObject(bingoNumber.toInt(), false)
-                }
-            })
-            // remove first 5 elements
-            filteredInput = filteredInput.drop(5)
-        }
+        val allBoards = inputToBingoBoards(filteredInput, ArrayList())
 
-        val boardListAll = allBoards.toList() // fixme will need to set allBoards functionally
-
-        return numberDraws.fold(Pair(0, boardListAll)) { pair, draw ->
+        return numberDraws.fold(Pair(0, allBoards)) { pair, draw -> // need pair to keep track of marked boards and score
             val (winningScore, boards) = pair
             if (winningScore > 0)
                 return@fold pair
             else
                 // check if each board wins after 5+ moves
                 return@fold getWinningBoard(numberDraws, boards, draw)
-        }.first
+        }.first // first element is score
     }
 
     // test if implementation meets criteria from the description
     val testInput = readInput("Day04_test")
     check(calculateBingoScore(testInput) == 4512)
+
+    val verticalTest = readInput("Day04_test1")
+    check(calculateBingoScore(verticalTest) == 3280)
+
+    // use actual input
+    val input = readInput("Day04")
+    println(calculateBingoScore(input))
 }
