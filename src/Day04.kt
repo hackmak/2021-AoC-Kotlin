@@ -57,7 +57,7 @@ fun main() {
         return false
     }
 
-    fun checkPotentialWinningBoard(markedBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
+    fun checkIfWinningPair(markedBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
         val winners = markedBoards.filter { markedBoard ->
             isWinningBoard(markedBoard)
         }
@@ -67,16 +67,16 @@ fun main() {
             Pair(0, markedBoards)
     }
 
-    fun getWinningBoard(numberDraws: List<Int>, allBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
+    fun getWinningPair(numberDraws: List<Int>, allBoards: List<List<List<BingoObject>>>, draw: Int): Pair<Int, List<List<List<BingoObject>>>> {
         // go through each number drawn and mark each bingo board if they have the value
         val markedBoards = allBoards.map { board ->
             markBingoBoard(draw, board)
         }
-        // check if each board wins after 5+ moves
         return if (numberDraws.indexOf(draw) < 5)
             Pair(0, markedBoards)
         else
-            checkPotentialWinningBoard(markedBoards, draw)
+            // check if each board wins after 5+ moves
+            checkIfWinningPair(markedBoards, draw)
     }
 
     fun inputToBingoBoards(filteredInput: List<String>, allBoards: List<List<List<BingoObject>>>): List<List<List<BingoObject>>> {
@@ -92,7 +92,7 @@ fun main() {
         }
     }
 
-    fun calculateBingoScore(input: List<String>): Int {
+    fun getBingoScore(input: List<String>): Int {
         // number of draws is first line of input
         val numberDraws = input[0].split(",").map { draw -> draw.toInt() }
 
@@ -110,19 +110,18 @@ fun main() {
             if (winningScore > 0)
                 return@fold pair
             else
-                // check if each board wins after 5+ moves
-                return@fold getWinningBoard(numberDraws, boards, draw)
+                return@fold getWinningPair(numberDraws, boards, draw)
         }.first // first element is score
     }
 
     // test if implementation meets criteria from the description
     val testInput = readInput("Day04_test")
-    check(calculateBingoScore(testInput) == 4512)
+    check(getBingoScore(testInput) == 4512)
 
     val verticalTest = readInput("Day04_test1")
-    check(calculateBingoScore(verticalTest) == 3280)
+    check(getBingoScore(verticalTest) == 3280)
 
     // use actual input
     val input = readInput("Day04")
-    println(calculateBingoScore(input))
+    println(getBingoScore(input))
 }
